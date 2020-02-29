@@ -748,8 +748,7 @@ namespace eprosima
                  * @return Reference to the eprosima::fastcdr::Cdr object.
                  * @exception exception::NotEnoughMemoryException This exception is thrown when trying to serialize a position that exceeds the internal memory size.
                  */
-				inline
-					Cdr& serialize(const std::string &string_t) {return serialize(string_t.c_str());}
+				Cdr& serialize(const std::string &string_t);
 
                 /*!
                  * @brief This function serializes a std::string with a different endianness.

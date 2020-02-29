@@ -18,6 +18,9 @@
 using namespace eprosima::fastcdr;
 using namespace ::exception;
 
+// #include <iostream>
+// using namespace std;
+
 #if __BIG_ENDIAN__
 const Cdr::Endianness Cdr::DEFAULT_ENDIAN = BIG_ENDIANNESS;
 #else
@@ -538,12 +541,42 @@ Cdr& Cdr::serialize(const bool bool_t)
     throw NotEnoughMemoryException(NotEnoughMemoryException::NOT_ENOUGH_MEMORY_MESSAGE_DEFAULT);
 }
 
+
+Cdr& Cdr::serialize(const std::string &string_t) 
+{
+    uint32_t length = (uint32_t)string_t.length() + 1;
+
+    Cdr::state state(*this);
+    serialize(length);
+
+    // cout<<"+++ serialize() length: "<<length<<endl;
+
+    if(((m_lastPosition - m_currentPosition) >= length) || resize(length))
+    {
+        // Save last datasize.
+        m_lastDataSize = sizeof(uint8_t);
+
+        m_currentPosition.memcopy(string_t.c_str(), length);
+        m_currentPosition += length;
+    }
+    else
+    {
+        setState(state);
+        throw NotEnoughMemoryException(NotEnoughMemoryException::NOT_ENOUGH_MEMORY_MESSAGE_DEFAULT);
+    }
+
+    return *this;
+}
+
+
 Cdr& Cdr::serialize(const char *string_t)
 {
     uint32_t length = 0;
 
     if(string_t != nullptr)
         length = (uint32_t)strlen(string_t) + 1;
+
+    // cout<<"$$$ serialize() length: "<<length<<endl;
 
     if(length > 0)
     {
@@ -1321,8 +1354,10 @@ const char* Cdr::readString(uint32_t &length)
 {
     const char* returnedValue = "";
     state state(*this);
-
+    
     *this >> length;
+
+    // cout<<"--- readString() length: "<<length<<endl;
 
     if(length == 0)
     {
@@ -1336,6 +1371,8 @@ const char* Cdr::readString(uint32_t &length)
         returnedValue = &m_currentPosition;
         m_currentPosition += length;
         if(returnedValue[length-1] == '\0') --length;
+
+        // cout<<"     returnedValue >>> "<<returnedValue<<endl;
         return returnedValue;
     }
 

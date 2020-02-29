@@ -23,7 +23,7 @@ set_sources(
     exceptions/Exception.cpp
     exceptions/NotEnoughMemoryException.cpp
     exceptions/BadParamException.cpp
-    FastCdr.rc
+    # FastCdr.rc
 )
 
 # Set version
